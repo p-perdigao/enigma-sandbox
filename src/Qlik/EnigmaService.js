@@ -77,54 +77,92 @@ class EnigmaService {
         return this.app
     }
 
-    async getData(defs, callback) {
+    async getData(defs, setData) {
         try {
             const model = await this.app.createSessionObject(defs)
-
-            if( callback ) {
-                model.on('changed', callback)
-                await callback(model)
+            console.log(model)
+            const getData = async (model) => {
+                try {
+                    const qHyperCubeDef = defs.qHyperCubeDef
+                    console.log(defs, qHyperCubeDef)
+                    const path = '/qHyperCubeDef'
+                    
+                    const numOfDim = qHyperCubeDef.qDimensions?.length ? qHyperCubeDef.qDimensions?.length : 0
+                    const numOfMeasures = qHyperCubeDef.qMeasures?.length ? qHyperCubeDef.qMeasures?.length : 0
+                    const hypercubeWidth = numOfDim + numOfMeasures
+                    
+                    const pages = [{qWidth: hypercubeWidth, qHeight: 10000/hypercubeWidth}]
+                    switch(true) {
+                        case qHyperCubeDef.qMode === 'S' || qHyperCubeDef.qMode === 'DATA_MODE_STRAIGHT':
+                            setData(await model.getHyperCubeData(path, pages))
+                            break;
+                        case qHyperCubeDef.qMode === 'P' || qHyperCubeDef.qMode === 'DATA_MODE_PIVOT':
+                            setData(await model.getHyperCubePivotData(path, pages))
+                            break;
+                        case qHyperCubeDef.qMode === 'K' || qHyperCubeDef.qMode === 'DATA_MODE_PIVOT_STACK':
+                            setData(await model.getHyperCubeStackData(path, pages))
+                            break;
+                        case qHyperCubeDef.qMode === 'T' || qHyperCubeDef.qMode === 'DATA_MODE_TREE':
+                            setData(await model.getHyperCubeTreeData(path))
+                            break;
+                        case qHyperCubeDef.qMode === 'D' || qHyperCubeDef.qMode === 'DATA_MODE_DYNAMIC':
+                            setData(await model.getHyperCubeData(path, pages))
+                            break;
+                        default:
+                            setData(await model.getHyperCubeData(path, pages))
+                            break;
+                    }
+                } catch (error) {
+                    console.error(error)
+                }
             }
     
-            return model            
+            getData(model)
+            model.on('changed', () => getData(model)
+            )
+    
+            return model   
         } catch (error) {
             console.error('Erro ao buscar dados:', error)
         }
     }
 
-    async getObjectData(id, setRawData) {
-        try {
-            const model = await this.app.getObject(id)
-            const qHyperCubeDef = (await model.getProperties()).qHyperCubeDef
-            console.log(qHyperCubeDef)
-
-            
-            const path = '/qHyperCube'
-            const hypercubeWidth = qHyperCubeDef.qDimensions.length + qHyperCubeDef.qMeasures.length
-            const pages = [{qWidth: hypercubeWidth, qHeight: 10000/hypercubeWidth}]
-
-            switch(true) {
-                case qHyperCubeDef.qMode === 'S' || qHyperCubeDef.qMode === 'DATA_MODE_STRAIGHT':
-                    setRawData(model.getHyperCubeData(path, pages))
-                    break;
-                case qHyperCubeDef.qMode === 'P' || qHyperCubeDef.qMode === 'DATA_MODE_PIVOT':
-                    setRawData(model.getHyperCubePivotData(path, pages))
-                    break;
-                case qHyperCubeDef.qMode === 'K' || qHyperCubeDef.qMode === 'DATA_MODE_PIVOT_STACK':
-                    setRawData(model.getHyperCubeStackData(path, pages))
-                    break;
-                case qHyperCubeDef.qMode === 'T' || qHyperCubeDef.qMode === 'DATA_MODE_TREE':
-                    setRawData(model.getHyperCubeTreeData(path))
-                    break;
-                case qHyperCubeDef.qMode === 'D' || qHyperCubeDef.qMode === 'DATA_MODE_DYNAMIC':
-                    setRawData(model.getHyperCubeData(path, pages))
-                    break;
-
+    async getObjectData(id, setData)  {
+        const model = await this.app.getObject(id)
+        const getData = async (model) => {
+            try {
+                const qHyperCubeDef = (await model.getProperties()).qHyperCubeDef
+                console.log(qHyperCubeDef)
+                const path = '/qHyperCubeDef'
+                const hypercubeWidth = qHyperCubeDef?.qDimensions?.length + qHyperCubeDef?.qMeasures?.length
+                const pages = [{qWidth: hypercubeWidth, qHeight: 10000/hypercubeWidth}]
+    
+                switch(true) {
+                    case qHyperCubeDef.qMode === 'S' || qHyperCubeDef.qMode === 'DATA_MODE_STRAIGHT':
+                        setData(await model.getHyperCubeData(path, pages))
+                        break;
+                    case qHyperCubeDef.qMode === 'P' || qHyperCubeDef.qMode === 'DATA_MODE_PIVOT':
+                        setData(await model.getHyperCubePivotData(path, pages))
+                        break;
+                    case qHyperCubeDef.qMode === 'K' || qHyperCubeDef.qMode === 'DATA_MODE_PIVOT_STACK':
+                        setData(await model.getHyperCubeStackData(path, pages))
+                        break;
+                    case qHyperCubeDef.qMode === 'T' || qHyperCubeDef.qMode === 'DATA_MODE_TREE':
+                        setData(await model.getHyperCubeTreeData(path))
+                        break;
+                    case qHyperCubeDef.qMode === 'D' || qHyperCubeDef.qMode === 'DATA_MODE_DYNAMIC':
+                        setData(await model.getHyperCubeData(path, pages))
+                        break;
+                }
+            } catch (error) {
+                console.error(error)
             }
-
-        } catch (error) {
-            console.error(error)
         }
+
+        getData(model)
+        model.on('changed', () => getData(model))
+
+        return model
     }
 }
 

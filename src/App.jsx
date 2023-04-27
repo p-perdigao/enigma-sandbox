@@ -17,8 +17,6 @@ const App = () => {
     const [enigmaInitialized, setEnigmaInitialized] = useState(false)
     const [context, setContext] = useState([])
     
-    console.log(context)
-    
     useEffect(() => {
         const instances = []
         for (const [appName, appId] of Object.entries(appList)) {
@@ -38,9 +36,9 @@ const App = () => {
         return (
             <AppContext.Provider value = {context}>
                 <div>
-                    <App1 />
+                    {/* <App1 /> */}
                     <App2 />
-                    <App3 />
+                    {/* <App3 /> */}
                 </div>
             </AppContext.Provider>
         )

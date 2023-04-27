@@ -1,0 +1,46 @@
+{
+    "qInfo": {
+        "qType": "barchart",
+        "qId": "hypercube2"
+    },
+    "qHyperCubeDef": {
+        "qInitialDataFetch": [
+            {
+                "qHeight": 12,
+                "qWidth": 3
+            }
+          ],
+        "qDimensions": [
+            {
+                "qDef": {
+                    "qFieldDefs": ["Year", "Month"],
+                    "qGrouping": "H",
+                    "qSortCriterias": [
+                        {
+                            "qSortByNumeric": 1
+                        },
+                        
+                        {
+                            "qSortByNumeric": 1
+                        }
+                    ]
+                }
+            }
+        ],
+        "qMeasures": [
+            {
+                "qDef": {
+                    "qDef": "Sum ([Sales Amount])"
+                }
+            },
+            {
+                "qDef": {
+                    "qDef": "Sum([Sales Margin Amount])/Sum([Sales Amount])"
+                } 
+            }
+        ],
+        "qSuppressZero": false,
+        "qSuppressMissing": false,
+        "qInterColumnSortOrder": [0, 1]
+    }
+}
